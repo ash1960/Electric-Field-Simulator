@@ -42,7 +42,7 @@ export const GRID_SPACING_MAX = 50;
 // Particle colors (distinct from charge and colormap colors)
 export const PARTICLE_COLORS = ['#00ff88', '#ff6fff', '#ffaa00'];
 
-// Viridis LUT — 256 entries [r, g, b] (0–255).
-// Populated in Phase 2 (js/renderer/color-map.js).
-// Canonical source: https://github.com/BIDS/colormap/blob/master/colormaps.py
+// Charge visual radius (px) — used by charge-renderer and arrow skip zone.
+export const CHARGE_RADIUS_PX = 20;
+
 export const VIRIDIS = [];

@@ -140,6 +140,8 @@ Variable suffixes are mandatory for unit clarity:
 - Explain the root cause before proposing an alternative. Never silently pivot.
 - Do not use destructive shortcuts (`--no-verify`, `--force`, `rm -rf`) to bypass failures. Investigate the underlying issue.
 - A passing browser load does not guarantee the correct code is running. A working-tree edit does nothing until the file is saved and the page reloaded. Always hard-refresh (`Ctrl+Shift+R`) after edits.
+- **ES6 module cache:** Browsers cache ES6 modules per-origin across navigations. After adding or renaming an export, always navigate with a cache-busting query param (`?v=N`) or `Ctrl+Shift+R`. If the browser reports "module does not export X" but the file clearly has it, suspect the cache before doubting the code.
+- **Playwright MCP browser recovery:** If `browser_navigate` returns "Target page, context or browser has been closed", call `browser_close` first (clears the dead session), then `browser_navigate` again. Do not call `ToolSearch` repeatedly — the browser state, not the tool schema, is what needs resetting.
 
 ## Token & Context Management
 
