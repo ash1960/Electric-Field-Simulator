@@ -3,26 +3,32 @@ import { CHARGE_RADIUS_PX, PIXELS_PER_CM } from '../config.js';
 const COLOR_POS = '#ff6b6b';
 const COLOR_NEG = '#4dabf7';
 
-export function drawCharge(ctx, charge) {
+export function drawCharge(ctx, charge, isSelected = false) {
   const color = charge.sign > 0 ? COLOR_POS : COLOR_NEG;
   const { x_px, y_px } = charge;
 
   ctx.save();
-  ctx.shadowBlur = 20;
-  ctx.shadowColor = color;
 
+  // Selection ring
+  if (isSelected) {
+    ctx.shadowBlur = 12; ctx.shadowColor = '#ffffff';
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x_px, y_px, CHARGE_RADIUS_PX + 5, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+
+  ctx.shadowBlur = 20; ctx.shadowColor = color;
   ctx.beginPath();
   ctx.arc(x_px, y_px, CHARGE_RADIUS_PX, 0, Math.PI * 2);
   ctx.fillStyle = color;
   ctx.fill();
-
   ctx.shadowBlur = 0;
 
-  // +/− symbol
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 18px system-ui';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText(charge.sign > 0 ? '+' : '−', x_px, y_px);
 
   ctx.restore();

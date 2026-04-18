@@ -110,3 +110,69 @@ input[type="range"] {
   max-height: 80vh;
   overflow-y: auto;
 }
+
+/* ── Control panel components ─────────────────────────────── */
+
+.section-header {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8b949e;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #30363d;
+}
+
+.slider-value {
+  min-width: 52px;
+  text-align: right;
+  color: #58a6ff;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.shortcut-table {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 3px 8px;
+  font-size: 11px;
+  margin: 4px 0 0;
+}
+
+.shortcut-table dt {
+  color: #e6edf3;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+}
+
+.shortcut-table dd {
+  color: #8b949e;
+  margin: 0;
+}
+
+/* ── Help overlay ─────────────────────────────────────────── */
+
+.help-section {
+  color: #58a6ff;
+  font-size: 14px;
+  margin: 18px 0 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #30363d;
+}
+
+.help-content p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #c9d1d9;
+  margin: 6px 0;
+}
+
+.help-content dl.shortcut-table {
+  grid-template-columns: 120px 1fr;
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+.help-content dl.shortcut-table dt { color: #e6edf3; }
+.help-content dl.shortcut-table dd { color: #8b949e; }

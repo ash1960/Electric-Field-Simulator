@@ -33,7 +33,7 @@ export class CanvasManager {
 
     // 5. Charges + labels
     for (const c of charges) {
-      drawCharge(ctx, c);
+      drawCharge(ctx, c, c.id === selectedId);
       drawChargeLabel(ctx, c);
     }
 
@@ -124,9 +124,70 @@ export class CanvasManager {
     ctx.restore();
   }
 
-  _drawProbe(probeResult) {
-    // Phase 3 will implement the full tooltip.
-    // Stub: no-op.
+  _drawProbe({ x_px, y_px, ex, ey, magnitude, angle_deg, pos_cm }) {
+    if (!magnitude) return;
+    const { ctx, canvas } = this;
+    const angle = Math.atan2(ey, ex);
+
+    // Direction arrow at cursor
+    const AL = 24, HL = 7, HA = 0.45;
+    const tx = x_px + Math.cos(angle) * AL;
+    const ty = y_px + Math.sin(angle) * AL;
+    ctx.save();
+    ctx.strokeStyle = '#58a6ff'; ctx.fillStyle = '#58a6ff';
+    ctx.lineWidth = 2; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x_px, y_px); ctx.lineTo(tx, ty); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(tx, ty);
+    ctx.lineTo(tx - HL * Math.cos(angle - HA), ty - HL * Math.sin(angle - HA));
+    ctx.lineTo(tx - HL * Math.cos(angle + HA), ty - HL * Math.sin(angle + HA));
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+
+    // Tooltip box
+    const BW = 220, BH = 116, PAD = 11, LH = 19;
+    let bx = x_px + 18, by = y_px + 10;
+    if (bx + BW > canvas.width  - 4) bx = x_px - BW - 18;
+    if (by + BH > canvas.height - 4) by = y_px - BH - 10;
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(13,17,23,0.9)';
+    ctx.strokeStyle = '#30363d'; ctx.lineWidth = 1;
+    this._rrect(bx, by, BW, BH, 8);
+    ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = '#e6edf3';
+    ctx.font = "13px 'Courier New', monospace";
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    const xCm = pos_cm.x.toFixed(1), yCm = pos_cm.y.toFixed(1);
+    ctx.fillText(`(x,y) = (${xCm}, ${yCm}) cm`,    bx + PAD, by + PAD);
+    ctx.fillText(`|E|  = ${this._sci(magnitude)} V/m`, bx + PAD, by + PAD + LH);
+    ctx.fillText(`θ    = ${angle_deg.toFixed(1)}°`,    bx + PAD, by + PAD + LH * 2);
+    ctx.fillText(`Eₓ   = ${this._sci(ex)} V/m`,        bx + PAD, by + PAD + LH * 3);
+    ctx.fillText(`Eᵧ   = ${this._sci(ey)} V/m`,        bx + PAD, by + PAD + LH * 4);
+    ctx.restore();
+  }
+
+  _rrect(x, y, w, h, r) {
+    const { ctx } = this;
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y,     x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x,     y + h, r);
+    ctx.arcTo(x,     y + h, x,     y,     r);
+    ctx.arcTo(x,     y,     x + w, y,     r);
+    ctx.closePath();
+  }
+
+  _sci(v) {
+    const S = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+    if (!isFinite(v) || v === 0) return '0';
+    const sign = v < 0 ? '−' : '';
+    const abs  = Math.abs(v);
+    const exp  = Math.floor(Math.log10(abs));
+    const m    = (abs / Math.pow(10, exp)).toFixed(2);
+    const eStr = String(exp).split('').map(c => S[c] ?? c).join('');
+    return `${sign}${m}×10${eStr}`;
   }
 
   drawScrubCrosshair(x_px, y_px) {
