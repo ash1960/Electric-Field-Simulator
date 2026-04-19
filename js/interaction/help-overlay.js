@@ -25,7 +25,7 @@ export class HelpOverlay {
 <p>Click <strong>+ Positive</strong> or <strong>− Negative</strong> in the control panel to add a charge. Drag any charge to reposition it — the field arrows update in real time. Use the magnitude slider to adjust charge strength (1–10 μC).</p>
 
 <h3 class="help-section">Field Probe</h3>
-<p>Hover anywhere over the canvas to inspect the electric field. The tooltip shows exact position (cm), field magnitude |E| (V/m), direction angle θ (°), and Cartesian components E<sub>x</sub>, E<sub>y</sub>. A blue arrow at the cursor indicates field direction.</p>
+<p>Hover anywhere over the canvas to inspect the electric field. The tooltip shows exact position (cm), field magnitude |E| (N/C), direction angle θ (°), and Cartesian components E<sub>x</sub>, E<sub>y</sub>. A blue arrow at the cursor scales with field strength.</p>
 
 <h3 class="help-section">Test Particles</h3>
 <p>Add a test particle via the panel (up to 3). Drag it onto the canvas and release — the particle accelerates under <em>F = qE</em>. Use <strong>Reset Particles</strong> to return all particles to their last release positions with zero velocity.</p>
@@ -49,7 +49,10 @@ export class HelpOverlay {
 </dl>
 
 <h3 class="help-section">Units &amp; Scale</h3>
-<p>Canvas: 120 × 80 cm (1 px = 1 mm = 10<sup>−3</sup> m). Charges in μC. Field in V/m. Force in N. Particle mass in μg (10<sup>−9</sup> kg). Simulation speed is adjustable: 10<sup>−6</sup> to 10<sup>−2</sup> simulated seconds per frame.</p>
+<p>Canvas: 120 × 80 cm (1 px = 1 mm = 10<sup>−3</sup> m). All physics computed in strict SI (MKS):
+Electric field in N/C · Force in N · Charge in C · Mass in kg · Energy in J.
+UI displays convenience scales: charges in μC, particle charge in nC, mass in μg.
+k = 9×10<sup>9</sup> N·m²/C² · ε<sub>0</sub> = 8.85×10<sup>−12</sup> F/m.</p>
 
 <button id="help-close-btn" style="margin-top:20px;width:100%">Close</button>`;
     this.#el.appendChild(content);

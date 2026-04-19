@@ -1,7 +1,7 @@
 // Self-contained: no ES6 imports (Workers cannot use module imports without type:module).
 // Inlined Coulomb constants and math.
 
-const K_COULOMB = 8.99e9;
+const K_COULOMB = 9e9;
 const R_MIN_M = 0.02;
 const UC_TO_C = 1e-6;
 const PX_TO_M = 1e-3;

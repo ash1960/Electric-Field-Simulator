@@ -1,8 +1,8 @@
-import { K_COULOMB, R_MIN_M, UC_TO_C, PX_TO_M } from './constants.js';
+import { K_COULOMB, R_MIN_M, UC_TO_C, NC_TO_C, PX_TO_M } from './constants.js';
 
 // U = Σᵢ k · Qᵢ · q / rᵢ  (joules). rᵢ clamped to R_MIN_M.
 export function computePotentialEnergy(particle, charges) {
-  const q_C = particle.charge_C;
+  const q_C = particle.magnitude_nc * particle.sign * NC_TO_C;
   const px_m = particle.x_px * PX_TO_M;
   const py_m = particle.y_px * PX_TO_M;
   let U = 0;

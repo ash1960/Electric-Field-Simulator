@@ -2,13 +2,27 @@
 export const PIXELS_PER_CM = 10;
 export const PX_TO_M = 1e-3;
 
-// Physics
-export const K_COULOMB = 8.99e9;
+// Physics — MKS / SI
+export const K_COULOMB = 9e9;           // Coulomb's constant [N·m²/C²]
+export const EPSILON_0 = 8.85e-12;      // Vacuum permittivity [F/m]
+export const E_CHARGE  = 1.602e-19;     // Elementary charge [C]
+export const M_PROTON  = 1.67e-27;      // Proton mass [kg]
+export const M_ELECTRON = 9.11e-31;     // Electron mass [kg]
+
 export const R_MIN_M = 0.02;
 export const R_CAPTURE_M = 0.03;
 export const UC_TO_C = 1e-6;
 export const NC_TO_C = 1e-9;
 export const UG_TO_KG = 1e-9;
+
+// Unit labels — authoritative SI unit names for documentation / UI.
+export const UNITS = {
+  force:          'Newton (N)',
+  electric_field: 'N/C',
+  charge:         'Coulomb (C)',
+  mass:           'kg',
+  energy:         'Joule (J)',
+};
 
 // Canvas
 export const CANVAS_W = 1200;

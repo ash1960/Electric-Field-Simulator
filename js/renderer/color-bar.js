@@ -1,6 +1,6 @@
 import { VIRIDIS } from './color-map.js';
 
-const BAR_X = 10;
+const BAR_X = 30;
 const BAR_Y = 200;
 const BAR_W = 20;
 const BAR_H = 400;
@@ -42,14 +42,15 @@ export function drawColorBar(ctx, maxMag, formatField) {
     ctx.fillText(formatField(mag), BAR_X + BAR_W + 7, tickY);
   }
 
-  // Title '|E| (V/m)' rotated 90°
+  // Title '|E| (N/C)' rotated 90°
   ctx.save();
-  ctx.translate(BAR_X - 2, BAR_Y + BAR_H / 2);
+  ctx.translate(BAR_X - 14, BAR_Y + BAR_H / 2);
   ctx.rotate(-Math.PI / 2);
   ctx.font = '13px system-ui';
   ctx.fillStyle = '#e6edf3';
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'bottom';
-  ctx.fillText('|E| (V/m)', 0, 0);
+  ctx.textBaseline = 'middle';
+  ctx.letterSpacing = '2px';
+  ctx.fillText('|E|  (N/C)', 0, 0);
   ctx.restore();
 }

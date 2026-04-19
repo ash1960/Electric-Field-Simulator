@@ -5,6 +5,8 @@ import { KeyboardManager }  from './interaction/keyboard.js';
 import { HelpOverlay }      from './interaction/help-overlay.js';
 import { UIControls }       from './interaction/ui-controls.js';
 import { ParticleManager }  from './interaction/particle-manager.js';
+import { FieldEngine }      from './physics/engine.js';
+import { ParticlePhysics }  from './physics/particle-physics.js';
 import {
   CANVAS_W, CANVAS_H, DEFAULT_GRID_SPACING, TIME_SCALE_DEFAULT,
   Q_MIN_UC, Q_MAX_UC, Q_STEP_UC, MAX_CHARGES,
@@ -23,7 +25,11 @@ const state = {
   paused: false,
   timeScale: TIME_SCALE_DEFAULT,
   scrubTimestamp: null,
+  maxSpeed: 0,
 };
+
+const engine = new FieldEngine();
+const particlePhysics = new ParticlePhysics(engine);
 
 let chargeSeq = 0;
 const uid = () => `c${++chargeSeq}`;
@@ -40,7 +46,7 @@ const PRESETS = {
     { magnitude_uc: 3, sign: -1, x_px: 350, y_px: 533 },
     { magnitude_uc: 3, sign: +1, x_px: 850, y_px: 533 },
   ],
-  line: [200, 400, 600, 800, 1000].map(x => ({ magnitude_uc: 2, sign: +1, x_px: x, y_px: 400 })),
+  line: [60, 180, 300, 420, 540, 660, 780, 900, 1020, 1140].map(x => ({ magnitude_uc: 2, sign: +1, x_px: x, y_px: 400 })),
 };
 
 // ── Worker ────────────────────────────────────────────────────
@@ -153,12 +159,31 @@ const uiCb = {
 
 // ── Drag callbacks ────────────────────────────────────────────
 function onDragStart(id, type) {
-  if (type === 'charge') selectCharge(id);
-  else                   selectParticle(id);
+  if (type === 'charge') {
+    selectCharge(id);
+  } else {
+    selectParticle(id);
+    const p = pm.particles.find(p => p.id === id);
+    if (p) {
+      p.state = 'held';
+      p.vx_ms = 0;
+      p.vy_ms = 0;
+      p.trail = [];
+      p.simTime = 0;
+    }
+  }
 }
 function onDragEnd(id, type) {
-  if (type === 'charge') recomputeGrid();
-  // Phase 4: if type==='particle' → set state.moving
+  if (type === 'charge') {
+    recomputeGrid();
+  } else {
+    const p = pm.particles.find(p => p.id === id);
+    if (p) {
+      p.drop_x_px = p.x_px;
+      p.drop_y_px = p.y_px;
+      p.state = 'moving';
+    }
+  }
 }
 function onDragMove(_id, type) {
   if (type === 'charge') recomputeGrid();
@@ -235,7 +260,15 @@ recomputeGrid();
 
 // ── Render loop ───────────────────────────────────────────────
 function loop() {
-  // Phase 4: particle stepping will go here (guarded by !state.paused)
+  if (!state.paused) {
+    for (const p of pm.particles) {
+      if (p.state === 'moving') {
+        particlePhysics.step(p, state.charges, state.timeScale);
+        const v = Math.hypot(p.vx_ms, p.vy_ms);
+        if (v > state.maxSpeed) state.maxSpeed = v;
+      }
+    }
+  }
   probe.refresh(state.charges, drag.isDraggingCharge);
   cm.render(
     state.charges, state.gridResult,
@@ -243,9 +276,10 @@ function loop() {
     pm.particles,
     state.selectedId, state.selectedType,
     state.gridSpacing, state.showVectors, state.scrubTimestamp,
+    state.maxSpeed,
   );
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
 
-console.log('[Phase 3] ✅ interaction ready');
+console.log('[Phase 4] ✅ particles ready');

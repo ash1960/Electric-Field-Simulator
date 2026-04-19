@@ -4,8 +4,8 @@ import { CHARGE_RADIUS_PX } from '../config.js';
 const SKIP_MARGIN = 4; // extra px beyond charge radius where arrows are suppressed
 
 export function drawArrow(ctx, x_px, y_px, ex, ey, magnitude, maxMag, gridSpacing) {
-  const MAX_ARROW = gridSpacing * 0.7;
-  const MIN_ARROW = gridSpacing * 0.2;
+  const MAX_ARROW = gridSpacing * 1.4;
+  const MIN_ARROW = gridSpacing * 0.4;
   const t = Math.log10(1 + (magnitude / maxMag) * 99) / 2;
   const length = MIN_ARROW + (MAX_ARROW - MIN_ARROW) * t;
 
@@ -16,10 +16,10 @@ export function drawArrow(ctx, x_px, y_px, ex, ey, magnitude, maxMag, gridSpacin
   const { r, g, b, alpha } = magnitudeToColor(magnitude, maxMag);
   ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
   ctx.fillStyle   = `rgba(${r},${g},${b},${alpha})`;
-  ctx.lineWidth = 1.2;
+  ctx.lineWidth = 3;
 
   // Shaft: from tail to just before arrowhead
-  const headLen = Math.max(3, length * 0.3);
+  const headLen = Math.max(4, length * 0.35);
   const shaftLen = length - headLen;
   const tx = x_px + cos * shaftLen;
   const ty = y_px + sin * shaftLen;
@@ -30,7 +30,7 @@ export function drawArrow(ctx, x_px, y_px, ex, ey, magnitude, maxMag, gridSpacin
   ctx.stroke();
 
   // Arrowhead (filled triangle)
-  const hw = headLen * 0.35;
+  const hw = headLen * 0.5;
   ctx.beginPath();
   ctx.moveTo(x_px + cos * length, y_px + sin * length);
   ctx.lineTo(tx - sin * hw, ty + cos * hw);

@@ -50,7 +50,7 @@ export class FieldEngine {
     };
   }
 
-  // Scientific notation with Unicode superscripts: 899000 → "8.99 × 10⁵"
+  // Scientific notation with Unicode superscripts: 900000 → "9.00 × 10⁵"
   formatField(magnitude) {
     if (!isFinite(magnitude) || magnitude === 0) return '0';
     const sign = magnitude < 0 ? '-' : '';

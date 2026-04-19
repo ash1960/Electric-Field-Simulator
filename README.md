@@ -17,12 +17,31 @@ Place point charges in a 2D domain, visualize the resulting electric field in re
 
 ### SI Units
 
-| Quantity | Unit | Simulation range | Notes |
+All backend physics is computed in strict MKS / SI. UI-facing scales (μC, nC, μg, cm) are converted at the boundary.
+
+```python
+CONSTANTS = {
+    "k":         9e9,        # Coulomb's constant [N*m^2/C^2]
+    "epsilon_0": 8.85e-12,   # Vacuum permittivity [F/m]
+    "e_charge":  1.602e-19,  # Elementary charge [C]
+    "m_p":       1.67e-27,   # Proton mass [kg]
+    "m_e":       9.11e-31,   # Electron mass [kg]
+}
+
+UNITS = {
+    "force":          "Newton (N)",
+    "electric_field": "N/C",
+    "charge":         "Coulomb (C)",
+    "mass":           "kg",
+    "energy":         "Joule (J)",
+}
+```
+
+| Quantity | UI unit | Simulation range | Notes |
 |----------|------|-------------------|-------|
 | Fixed charge Q | μC (microcoulomb) | ±1 to ±10 μC | Realistic electrostatic scale |
 | Distance | cm | 0–120 × 0–80 cm | Canvas = 120 cm × 80 cm |
-| Electric field E | V/m | Configuration-dependent | Exact SI in probe readout |
-| Coulomb constant k | N·m²/C² | 8.99 × 10⁹ | Exact SI value |
+| Electric field E | N/C (≡ V/m) | Configuration-dependent | Exact SI in probe readout |
 | Test-particle charge q | nC | ±0.1 to ±10 nC | Slider, default 1 nC |
 | Test-particle mass m | μg | 0.1 to 100 μg | Log slider, default 10 μg |
 | Potential energy U | J | Computed | Pair-sum Coulomb potential |
@@ -115,7 +134,7 @@ Given: Q₁ = +5 μC at (45, 40) cm,  Q₂ = −5 μC at (75, 40) cm
 Probe point: (60, 40) cm — dipole midpoint
 
 r₁ = r₂ = 15 cm = 0.15 m
-E₁ = E₂ = (8.99×10⁹)(5×10⁻⁶) / (0.15)² = 2.00×10⁶ V/m
+E₁ = E₂ = (9×10⁹)(5×10⁻⁶) / (0.15)² = 2.00×10⁶ V/m
 
 Both vectors point in the +x direction.
 E_total = 4.00×10⁶ V/m, θ = 0.0°
@@ -373,15 +392,15 @@ e-field-sim/
 - Grid computed in **Web Worker** — main thread never blocked
 - **Arrow size:** log scale, tied to grid spacing to prevent overlap:
   ```
-  MAX_ARROW = gridSpacing × 0.7
-  MIN_ARROW = gridSpacing × 0.2
+  MAX_ARROW = gridSpacing × 1.4
+  MIN_ARROW = gridSpacing × 0.4
   length = MIN + (MAX − MIN) × log₁₀(1 + |E|/maxMag × 99) / 2
   ```
 - **Color:** Viridis perceptually uniform colormap (log-scaled):
   ```
   t = log₁₀(1 + |E|/maxMag × 999) / 3
   color = VIRIDIS_LUT[floor(t × 255)]
-  alpha = 0.25 + t × 0.7
+  alpha = 0.5 + t × 0.5
   ```
   Viridis transitions through dark purple → blue → teal → green → yellow.
   Perceptually linear in luminance — accessible to color-blind viewers and robust under aged projectors.
@@ -635,7 +654,9 @@ config.js exports:
   // Scale
   PIXELS_PER_CM: 10, PX_TO_M: 1e-3,
   // Physics
-  K_COULOMB: 8.99e9, R_MIN_M: 0.02, R_CAPTURE_M: 0.03,
+  K_COULOMB: 9e9, EPSILON_0: 8.85e-12, E_CHARGE: 1.602e-19,
+  M_PROTON: 1.67e-27, M_ELECTRON: 9.11e-31,
+  R_MIN_M: 0.02, R_CAPTURE_M: 0.03,
   UC_TO_C: 1e-6, NC_TO_C: 1e-9, UG_TO_KG: 1e-9,
   // Charges
   MAX_CHARGES: 10, Q_MIN_UC: 1, Q_MAX_UC: 10, Q_STEP_UC: 0.5,
@@ -715,7 +736,7 @@ Web Worker (self-contained — cannot import ES6 modules).
 
 Console validation:
   Q=1μC at (600,400)px, probe at (700,400)px.
-  Expected: E = 8.99×10⁵ V/m. Assert < 0.01% error.
+  Expected: E = 9.00×10⁵ V/m. Assert < 0.01% error.
 
 git commit -m 'feat: SI physics engine + grid worker + energy'"
 ```
@@ -1138,9 +1159,9 @@ Code quality:
   - Consistent naming: _px, _m, _ms, _uc, _nc, _C, _kg
 
 Validation suite (console):
-  1. Single Q=1μC → E at 10cm = 8.99×10⁵ V/m
+  1. Single Q=1μC → E at 10cm = 9.00×10⁵ V/m
   2. Dipole symmetry at midpoint
-  3. formatField(899000) → '8.99 × 10⁵'
+  3. formatField(900000) → '9.00 × 10⁵'
   4. Verlet energy conservation: Q=+5μC, q=+1nC, m=10μg
      at r=20cm. KE+PE at r=25cm → < 1% drift from initial PE.
   5. Anti-tunneling: high-speed particle aimed at charge → captured.

@@ -80,9 +80,31 @@ Viridis color mapping: `t = log₁₀(1 + |E|/maxMag × 999) / 3`, `alpha = 0.25
 
 ## Key Constants (`js/config.js`)
 
+All physics constants are MKS/SI. Authoritative table:
+
+```javascript
+CONSTANTS = {
+  K_COULOMB:  9e9,        // Coulomb's constant   [N·m²/C²]
+  EPSILON_0:  8.85e-12,   // Vacuum permittivity  [F/m]
+  E_CHARGE:   1.602e-19,  // Elementary charge    [C]
+  M_PROTON:   1.67e-27,   // Proton mass          [kg]
+  M_ELECTRON: 9.11e-31,   // Electron mass        [kg]
+}
+
+UNITS = {
+  force:          'Newton (N)',
+  electric_field: 'N/C',
+  charge:         'Coulomb (C)',
+  mass:           'kg',
+  energy:         'Joule (J)',
+}
+```
+
+Other runtime knobs:
+
 ```javascript
 PIXELS_PER_CM: 10,   PX_TO_M: 1e-3
-K_COULOMB: 8.99e9,   R_MIN_M: 0.02,   R_CAPTURE_M: 0.03
+R_MIN_M: 0.02,       R_CAPTURE_M: 0.03
 UC_TO_C: 1e-6,       NC_TO_C: 1e-9,   UG_TO_KG: 1e-9
 MAX_CHARGES: 10,     MAX_PARTICLES: 3
 SUB_STEPS: 50,       MAX_TRAIL_SECONDS: 10
@@ -199,7 +221,7 @@ git push -u origin main
 
 For smoke-testing physics correctness in browser console:
 ```
-Q=1μC at (600,400)px, probe at (700,400)px → E = 8.99×10⁵ V/m
+Q=1μC at (600,400)px, probe at (700,400)px → E = 9.00×10⁵ V/m
 Dipole: +5μC at (450,400)px, −5μC at (750,400)px, probe at midpoint (600,400)px
   → E_total = 4.00×10⁶ V/m, θ = 0.0°
 ```

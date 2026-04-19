@@ -1,6 +1,9 @@
 import { renderGrid } from './arrow-renderer.js';
 import { drawCharge, drawChargeLabel } from './charge-renderer.js';
 import { drawColorBar } from './color-bar.js';
+import {
+  drawTrail, drawParticle, drawForceVector, drawVelocityVector,
+} from './particle-renderer.js';
 import { FieldEngine } from '../physics/engine.js';
 
 const _engine = new FieldEngine();
@@ -12,7 +15,7 @@ export class CanvasManager {
   }
 
   render(charges, gridResult, probeResult, particles, selectedId, selectedType,
-         gridSpacing, showVectors, scrubTimestamp) {
+         gridSpacing, showVectors, scrubTimestamp, maxSpeed = 1) {
     const { ctx, canvas } = this;
 
     // 1. Clear + background
@@ -29,7 +32,10 @@ export class CanvasManager {
       renderGrid(ctx, gridResult, charges, gridSpacing);
     }
 
-    // 4. Particle trails — Phase 4
+    // 4. Particle trails
+    if (particles) {
+      for (const p of particles) drawTrail(ctx, p, scrubTimestamp);
+    }
 
     // 5. Charges + labels
     for (const c of charges) {
@@ -37,14 +43,24 @@ export class CanvasManager {
       drawChargeLabel(ctx, c);
     }
 
-    // 6. Particles + F/v vectors — Phase 4
+    // 6. Particles + F/v vectors
+    if (particles) {
+      const maxMag = gridResult?.maxMag ?? 0;
+      for (const p of particles) {
+        drawParticle(ctx, p, p.id === selectedId);
+        if (showVectors && maxMag > 0) {
+          drawForceVector(ctx, p, charges, _engine, maxMag);
+          drawVelocityVector(ctx, p, maxSpeed);
+        }
+      }
+    }
 
     // 7. Scale bar
     this._drawScaleBar();
 
     // 8. Probe overlay — Phase 3
     if (probeResult) {
-      this._drawProbe(probeResult);
+      this._drawProbe(probeResult, gridResult?.maxMag ?? 0);
     }
 
     // 9. Scrub crosshair — Phase 5
@@ -124,13 +140,17 @@ export class CanvasManager {
     ctx.restore();
   }
 
-  _drawProbe({ x_px, y_px, ex, ey, magnitude, angle_deg, pos_cm }) {
+  _drawProbe({ x_px, y_px, ex, ey, magnitude, angle_deg, pos_cm }, maxMag) {
     if (!magnitude) return;
     const { ctx, canvas } = this;
     const angle = Math.atan2(ey, ex);
 
-    // Direction arrow at cursor
-    const AL = 24, HL = 7, HA = 0.45;
+    // Direction + magnitude arrow at cursor (log-scaled, wider range for clear visual feedback).
+    const MIN_AL = 20, MAX_AL = 120;
+    const t = maxMag > 0 ? Math.log10(1 + (magnitude / maxMag) * 999) / 3 : 0.5;
+    const AL = MIN_AL + (MAX_AL - MIN_AL) * Math.max(0, Math.min(1, t));
+    const HL = Math.max(7, AL * 0.28);
+    const HA = 0.45;
     const tx = x_px + Math.cos(angle) * AL;
     const ty = y_px + Math.sin(angle) * AL;
     ctx.save();
@@ -161,10 +181,10 @@ export class CanvasManager {
     ctx.textAlign = 'left'; ctx.textBaseline = 'top';
     const xCm = pos_cm.x.toFixed(1), yCm = pos_cm.y.toFixed(1);
     ctx.fillText(`(x,y) = (${xCm}, ${yCm}) cm`,    bx + PAD, by + PAD);
-    ctx.fillText(`|E|  = ${this._sci(magnitude)} V/m`, bx + PAD, by + PAD + LH);
+    ctx.fillText(`|E|  = ${this._sci(magnitude)} N/C`, bx + PAD, by + PAD + LH);
     ctx.fillText(`θ    = ${angle_deg.toFixed(1)}°`,    bx + PAD, by + PAD + LH * 2);
-    ctx.fillText(`Eₓ   = ${this._sci(ex)} V/m`,        bx + PAD, by + PAD + LH * 3);
-    ctx.fillText(`Eᵧ   = ${this._sci(ey)} V/m`,        bx + PAD, by + PAD + LH * 4);
+    ctx.fillText(`Eₓ   = ${this._sci(ex)} N/C`,        bx + PAD, by + PAD + LH * 3);
+    ctx.fillText(`Eᵧ   = ${this._sci(ey)} N/C`,        bx + PAD, by + PAD + LH * 4);
     ctx.restore();
   }
 

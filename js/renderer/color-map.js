@@ -25,10 +25,10 @@ function _buildViridis() {
 export const VIRIDIS = _buildViridis();
 
 export function magnitudeToColor(magnitude, maxMag) {
-  if (maxMag === 0) return { r: 68, g: 1, b: 84, alpha: 0.25 };
+  if (maxMag === 0) return { r: 68, g: 1, b: 84, alpha: 0.5 };
   const t = Math.log10(1 + (magnitude / maxMag) * 999) / 3;
   const tc = Math.max(0, Math.min(1, t));
   const idx = Math.min(255, Math.floor(tc * 255));
   const [r, g, b] = VIRIDIS[idx];
-  return { r, g, b, alpha: 0.25 + tc * 0.7 };
+  return { r, g, b, alpha: 0.5 + tc * 0.5 };
 }
