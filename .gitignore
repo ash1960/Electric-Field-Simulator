@@ -3,3 +3,8 @@ node_modules/
 *.log
 .vscode/
 .playwright-mcp/
+.sessions/
+tasks/
+bugs.md
+.claude/
+*.png

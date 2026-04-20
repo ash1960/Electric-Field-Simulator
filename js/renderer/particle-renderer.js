@@ -88,7 +88,7 @@ function _drawScaledArrow(ctx, x, y, vx, vy, mag, refMag, color, label) {
     ctx.font = 'bold 11px system-ui';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText(label, x + cos * length + 4, y + sin * length);
+    ctx.fillText(label, x + cos * length + 7, y + sin * length);
   }
   ctx.restore();
 }
@@ -100,7 +100,7 @@ export function drawForceVector(ctx, particle, charges, engine, maxMag) {
   const fy = q_C * E.ey;
   const fMag = Math.hypot(fx, fy);
   const fRef = Math.abs(q_C) * maxMag;  // reference: |q| · maxField
-  _drawScaledArrow(ctx, particle.x_px, particle.y_px, fx, fy, fMag, fRef, F_COLOR, 'F⃗');
+  _drawScaledArrow(ctx, particle.x_px, particle.y_px, fx, fy, fMag, fRef, F_COLOR, 'Force');
 }
 
 export function drawVelocityVector(ctx, particle, maxSpeed) {
@@ -108,7 +108,7 @@ export function drawVelocityVector(ctx, particle, maxSpeed) {
   _drawScaledArrow(
     ctx, particle.x_px, particle.y_px,
     particle.vx_ms, particle.vy_ms, vMag, maxSpeed || vMag || 1,
-    V_COLOR, 'v⃗',
+    V_COLOR, 'Velocity',
   );
 }
 

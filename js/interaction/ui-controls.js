@@ -234,7 +234,10 @@ export class UIControls {
 
     const clearB = btn('Clear All', () => this.#cb.onClearAll?.());
     clearB.style.cssText = 'width:100%;border-color:#ff6b6b;color:#ff6b6b;';
-    footer.append(status, clearB);
+    const credit = el('div');
+    credit.style.cssText = 'font-size:11px;color:#484f58;text-align:center;margin-top:8px;';
+    credit.textContent = 'Made by A.D.SH';
+    footer.append(status, clearB, credit);
     this.#panel.append(footer);
   }
 

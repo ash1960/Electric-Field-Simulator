@@ -97,7 +97,7 @@ export class CanvasManager {
     ctx.font = '12px system-ui';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('10 cm', x + barPx / 2, y);
+    ctx.fillText('10 cm', x + barPx / 2, y + 10);
     ctx.restore();
   }
 

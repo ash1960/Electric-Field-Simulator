@@ -11,23 +11,28 @@ export class KeyboardManager {
   destroy() { window.removeEventListener('keydown', this.#handler); }
 
   _handle(e) {
-    if (e.target.matches('input, select, textarea')) return;
+    const t = e.target;
+    if (t.tagName === 'TEXTAREA' || t.tagName === 'SELECT') return;
+    if (t.tagName === 'INPUT' && t.type !== 'range') return;
 
-    switch (e.key) {
+    // e.code = physical key position, layout-independent (works with Hebrew keyboard)
+    switch (e.code) {
       case 'Delete':
-      case 'Backspace': e.preventDefault(); this.#cb.onDelete?.(); break;
-      case 'c': case 'C': this.#cb.onClear?.(); break;
-      case '1': this.#cb.onPreset?.('dipole'); break;
-      case '2': this.#cb.onPreset?.('quadrupole'); break;
-      case '3': this.#cb.onPreset?.('line'); break;
-      case 'f': case 'F': this.#cb.onFullscreen?.(); break;
-      case '+': case '=': this.#cb.onAdjustQ?.(+1); break;
-      case '-': this.#cb.onAdjustQ?.(-1); break;
-      case 's': case 'S': this.#cb.onFlipSign?.(); break;
-      case 'r': case 'R': this.#cb.onResetParticles?.(); break;
-      case 'v': case 'V': this.#cb.onToggleVectors?.(); break;
-      case ' ': e.preventDefault(); this.#cb.onTogglePause?.(); break;
-      case '?': this.#cb.onToggleHelp?.(); break;
+      case 'Backspace':   e.preventDefault(); this.#cb.onDelete?.();          return;
+      case 'KeyC':                            this.#cb.onClear?.();           return;
+      case 'Digit1':                          this.#cb.onPreset?.('dipole');  return;
+      case 'Digit2':                          this.#cb.onPreset?.('quadrupole'); return;
+      case 'Digit3':                          this.#cb.onPreset?.('line');    return;
+      case 'KeyF':                            this.#cb.onFullscreen?.();      return;
+      case 'Equal':
+      case 'NumpadAdd':                       this.#cb.onAdjustQ?.(+1);      return;
+      case 'Minus':
+      case 'NumpadSubtract':                  this.#cb.onAdjustQ?.(-1);      return;
+      case 'KeyS':                            this.#cb.onFlipSign?.();        return;
+      case 'KeyR':                            this.#cb.onResetParticles?.();  return;
+      case 'KeyV':                            this.#cb.onToggleVectors?.();   return;
+      case 'Space':       e.preventDefault(); this.#cb.onTogglePause?.();     return;
+      case 'Slash':       if (e.shiftKey) this.#cb.onToggleHelp?.();          return;
     }
   }
 }

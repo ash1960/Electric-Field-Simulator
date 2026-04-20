@@ -303,4 +303,3 @@ function loop() {
 }
 requestAnimationFrame(loop);
 
-console.log('[Phase 4] ✅ particles ready');
