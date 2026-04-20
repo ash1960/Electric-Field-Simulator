@@ -1,321 +1,231 @@
-# Electric Field Simulator
+<div align="center">
 
-An interactive tool for university-level electrostatics. Place point charges in a 2D canvas, visualize the resulting electric field in real SI units, and observe charged test-particle dynamics in real time.
+# ⚡ Electric Field Simulator
+
+**Interactive electrostatics tool for university-level Physics II**
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-blue?style=for-the-badge&logo=github)](https://ash1960.github.io/Electric-Field-Simulator/)
+[![License](https://img.shields.io/badge/License-Educational%20Use-green?style=for-the-badge)](#license)
+
+*Place point charges, visualize the electric field in real SI units, and observe test-particle dynamics in real time.*
 
 **Made by A.D.SH**
 
-**Deployment:** Single URL on GitHub Pages — no installation, no build step.  
-**Live:** `https://ash1960.github.io/Electric-Field-Simulator/`
+</div>
 
 ---
 
-## Physical Model
+## 🚀 Live
 
-### SI Units
+**[https://ash1960.github.io/Electric-Field-Simulator/](https://ash1960.github.io/Electric-Field-Simulator/)**
 
-All physics is computed in strict MKS / SI. UI-facing scales (μC, nC, μg, cm) are converted at the boundary.
+No installation. No build step. Open and use.
 
-| Quantity | UI unit | Range | Notes |
-|----------|---------|-------|-------|
-| Fixed charge Q | μC | ±1 to ±10 μC | Step 0.5 μC |
-| Distance | cm | 0–120 × 0–80 cm | Canvas = 120 cm × 80 cm |
-| Electric field E | N/C | Configuration-dependent | Exact SI in probe readout |
-| Test-particle charge q | nC | ±0.1 to ±10 nC | Default 1 nC |
-| Test-particle mass m | μg | 0.1 to 100 μg | Log slider, default 10 μg |
-| Kinetic energy K | J | Computed | ½mv² |
+---
 
-### Scale
+## ✨ Features
 
-```
-PIXELS_PER_CM = 10
-→ Canvas 1200 × 800 px = 120 cm × 80 cm
-→ 1 pixel = 1 mm = 10⁻³ m
-```
+| Feature | Description |
+|---------|-------------|
+| ⚡ **Electric Field** | Real-time Coulomb superposition on a 48×32 arrow grid |
+| 🎨 **Viridis Colormap** | Perceptually uniform, colorblind-safe field magnitude coloring |
+| 🔬 **Field Probe** | Hover anywhere for exact |E|, θ, Eₓ, Eᵧ in SI units |
+| 🔴 **Test Particles** | Up to 3 particles — Velocity Verlet integration, anti-tunneling |
+| 📊 **Energy Panel** | Live K(t) and |E|(t) charts with timeline scrubbing |
+| 🎯 **Presets** | Dipole, Quadrupole, Uniform Line — one click |
+| ⌨️ **Keyboard Shortcuts** | Full keyboard control — works with any keyboard layout |
+| 🖥️ **Fullscreen** | Scales to any screen, aspect-ratio preserved |
+
+---
+
+## 🎮 Quick Start
+
+1. **[Open the simulator](https://ash1960.github.io/Electric-Field-Simulator/)**
+2. Click **+ Positive** to place a charge — field arrows appear instantly
+3. Drag the charge to explore the pattern
+4. Hover over the canvas to read exact SI values
+5. Click **Add Test Particle** → drag → release → watch it accelerate under *F = qE*
+6. Press **V** to show Force and Velocity vectors on the particle
+7. Open **📊 Energy Analysis** → press **Space** to pause → hover the chart to scrub
+8. Press **?** for the full usage guide
+
+---
+
+## ⌨️ Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `Del` / `Backspace` | Delete selected charge or particle |
+| `C` | Clear all |
+| `1` / `2` / `3` | Load Dipole / Quadrupole / Line preset |
+| `Space` | Pause / resume simulation |
+| `+` / `−` | Adjust selected charge magnitude ±0.5 μC |
+| `S` | Flip sign of selected entity |
+| `R` | Reset all particles to last release position |
+| `V` | Toggle Force / Velocity vectors |
+| `F` | Toggle fullscreen |
+| `?` | Toggle help overlay |
+
+> All shortcuts work regardless of keyboard language (Hebrew, English, etc.)
+
+---
+
+## 🧪 Physics
+
+### Model
+
+All computation in strict **MKS / SI**. UI convenience scales (μC, nC, μg, cm) are converted at the boundary.
+
+**Field computation — Coulomb superposition:**
+$$\vec{E}(P) = \sum_i \frac{k \cdot Q_i}{r_i^2} \hat{r}_i$$
+
+*Q enters with its sign — no manual flip on r̂. Singularity clamp: r_min = 2 cm.*
+
+**Test-particle dynamics — Newton's second law:**
+$$\vec{F} = q \cdot \vec{E}(x, y) \qquad \vec{a} = \vec{F} / m$$
+
+**Integration: Velocity Verlet**, 50 sub-steps per frame at 60 fps.
+
+**Anti-tunneling:** each sub-step checks the line segment traveled against every charge. If the segment-to-charge distance < R_capture = 3 cm, the particle is captured at the interpolated point — no tunneling at any speed.
 
 ### Constants
 
 ```
-k  = 9 × 10⁹  N·m²/C²   (Coulomb's constant)
-ε₀ = 8.85 × 10⁻¹²  F/m  (vacuum permittivity)
+k  = 9 × 10⁹  N·m²/C²     Coulomb's constant
+ε₀ = 8.85 × 10⁻¹²  F/m    Vacuum permittivity
 ```
 
-### Field Computation
+### Scale
 
 ```
-E⃗(P) = Σᵢ k · Qᵢ / rᵢ² · r̂ᵢ
+1 pixel = 1 mm = 10⁻³ m
+Canvas: 1200 × 800 px  =  120 × 80 cm
 ```
-
-Q enters the formula **with its sign** — no manual flip on r̂. Singularity clamp: r_min = 2 cm.
-
-### Test-Particle Dynamics
-
-```
-F⃗ = q · E⃗(x, y)     a⃗ = F⃗ / m
-```
-
-Integration: **Velocity Verlet**, 50 sub-steps per frame at 60 fps.
-
-**Anti-tunneling:** Each sub-step checks the segment from the particle's previous to next position against every charge. If the minimum segment-to-charge distance < R_CAPTURE = 3 cm, the particle is captured at the interpolated point — no tunneling regardless of velocity.
-
-**Time scaling:** Logarithmic slider, 10⁻⁶ to 10⁻² (default 10⁻⁴).
 
 ### Verification
 
 ```
-Q₁ = +5 μC at (45, 40) cm,  Q₂ = −5 μC at (75, 40) cm
-Probe: (60, 40) cm — dipole midpoint
+Q₁ = +5 μC at (45, 40) cm
+Q₂ = −5 μC at (75, 40) cm
+Probe at dipole midpoint (60, 40) cm
 
-r₁ = r₂ = 15 cm = 0.15 m
-E = 2 × (9×10⁹)(5×10⁻⁶)/(0.15)² = 4.00 × 10⁶ N/C,  θ = 0.0°
+r₁ = r₂ = 0.15 m
+E = 2 × (9×10⁹)(5×10⁻⁶) / (0.15)²  =  4.00 × 10⁶ N/C,  θ = 0.0°
 ```
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
 ### Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Simulation view | HTML5 Canvas (1200 × 800 px) |
-| Energy graphs | uPlot (vendored, ~35 KB) |
-| UI + physics | Vanilla ES6 modules |
-| Grid computation | Web Worker (off main thread) |
-| Deployment | GitHub Pages |
+| Simulation canvas | HTML5 Canvas — 1200 × 800 px |
+| Energy graphs | [uPlot](https://github.com/leeoniya/uPlot) v1.6.30 (vendored, ~35 KB) |
+| UI + physics | Vanilla ES6 modules — zero dependencies |
+| Grid computation | Web Worker — off main thread, no jank during drag |
+| Deployment | GitHub Pages — static, single URL |
 
-### File Structure
-
-```
-/
-├── index.html
-├── css/style.css
-├── js/
-│   ├── main.js                      ← orchestrator, state, render loop
-│   ├── config.js                    ← all constants and defaults
-│   ├── physics/
-│   │   ├── engine.js                ← computeFieldAt(), formatField()
-│   │   ├── vector.js                ← Vector2D (immutable)
-│   │   ├── energy.js                ← computeKineticEnergy()
-│   │   ├── particle-physics.js      ← Verlet stepper + anti-tunneling
-│   │   ├── constants.js             ← re-exports physics constants
-│   │   └── grid-worker.js           ← Web Worker: grid computation
-│   ├── renderer/
-│   │   ├── canvas-manager.js        ← render orchestration
-│   │   ├── arrow-renderer.js        ← field arrows (log scale)
-│   │   ├── charge-renderer.js       ← charge circles + labels
-│   │   ├── color-map.js             ← Viridis LUT
-│   │   ├── color-bar.js             ← Viridis legend bar
-│   │   ├── particle-renderer.js     ← particle + trail + F⃗/v⃗
-│   │   └── energy-panel.js          ← uPlot graphs + scrub sync
-│   └── interaction/
-│       ├── drag-manager.js          ← drag charges + particles
-│       ├── probe.js                 ← field probe (mouse hover)
-│       ├── particle-manager.js      ← particle lifecycle
-│       ├── keyboard.js              ← keyboard shortcuts
-│       ├── ui-controls.js           ← control panel
-│       └── help-overlay.js          ← "?" usage guide
-└── lib/
-    ├── uPlot.min.js
-    └── uPlot.min.css
-```
-
-### Data Flow
+### Module Structure
 
 ```
-ui-controls.js → main.js (state + render loop)
-                      │
-            ┌─────────┼─────────┐
-            ▼         ▼         ▼
-       physics/   renderer/  interaction/
+js/
+├── main.js                   ← orchestrator: state, render loop, event wiring
+├── config.js                 ← single source of truth for all constants
+│
+├── physics/
+│   ├── engine.js             ← computeFieldAt() — Coulomb superposition
+│   ├── particle-physics.js   ← Velocity Verlet + anti-tunneling
+│   ├── energy.js             ← kinetic energy computation
+│   ├── grid-worker.js        ← Web Worker: grid field computation
+│   ├── vector.js             ← immutable Vector2D
+│   └── constants.js          ← re-exports physics constants
+│
+├── renderer/
+│   ├── canvas-manager.js     ← render orchestration (11-step pipeline)
+│   ├── arrow-renderer.js     ← log-scaled field arrows
+│   ├── charge-renderer.js    ← charge circles + labels
+│   ├── color-map.js          ← Viridis LUT (256 entries)
+│   ├── color-bar.js          ← dynamic |E| legend
+│   ├── particle-renderer.js  ← trail + vectors + glow
+│   └── energy-panel.js       ← uPlot charts + scrub sync
+│
+└── interaction/
+    ├── drag-manager.js       ← pointer drag with Shift-axis-lock
+    ├── probe.js              ← live field readout on hover
+    ├── particle-manager.js   ← particle lifecycle
+    ├── keyboard.js           ← layout-independent shortcuts (e.code)
+    ├── ui-controls.js        ← control panel DOM
+    └── help-overlay.js       ← "?" guide
 ```
 
-`main.js` owns all mutable state: `charges[]`, `particles[]` (max 3), `gridResult`, `paused`, `timeScale`, `selectedId/Type`, `scrubTimestamp`.
+### Design Principles
 
-### Render Loop
-
-Each `requestAnimationFrame`:
-1. Step all `'moving'` particles (Verlet, if not paused)
-2. Refresh probe at `mousePos`
-3. Update energy panel (if open)
-4. `canvasManager.render(all state)`
-
-### Data Models
-
-**Charge:**
-```javascript
-{ id, x_px, y_px, magnitude_uc, sign: +1 | -1 }
-// Q_C = magnitude_uc * sign * 1e-6
-```
-
-**TestParticle:**
-```javascript
-{
-  id, x_px, y_px, vx_ms, vy_ms, mass_kg,
-  magnitude_nc, sign: +1 | -1,
-  drop_x_px, drop_y_px,
-  trail: [{ realT, x_px, y_px, K, E_field }],
-  state: 'held' | 'moving' | 'captured' | 'exited',
-  color
-}
-```
+- **Physics layer** never touches the DOM — returns pure data
+- **Renderer layer** never computes physics — reads state, draws pixels
+- **`config.js`** is the single source of truth — no magic numbers elsewhere
+- **Web Worker** handles the 1,536-point grid so the main thread stays at 60 fps
 
 ---
 
-## Features
+## 📐 Presets
 
-### Fixed Charges
-
-- Buttons: **+ Positive** / **− Negative** — new charge appears near canvas center
-- Free drag; `Shift+drag` → axis-locked movement
-- Click to select → properties panel:
-  - Magnitude slider 1–10 μC with ± step buttons
-  - Sign toggle, delete
-- Up to 10 charges
-
-### Field Visualization
-
-- Arrow grid, default spacing 25 px (1,536 points at default), range 15–50 px
-- During drag: grid computed at 2× spacing for smooth interaction, restored on drop
-- Grid computed in Web Worker — main thread never blocked
-- Arrow length: logarithmic scale tied to grid spacing
-- Color: **Viridis** perceptually-uniform colormap (log-scaled, colorblind-safe)
-- Arrows suppressed inside charge visual radius
-
-### Color Bar
-
-Vertical Viridis legend on the left edge of the canvas, dynamically scaled to current max |E|.
-
-### Field Probe
-
-Hover over the canvas to see:
-```
-(x,y) = (60.0, 40.0) cm
-|E|   = 4.00×10⁶ N/C
-θ     = 0.0°
-Eₓ    = 4.00×10⁶ N/C
-Eᵧ    = 0.00 N/C
-```
-Tooltip flips at canvas edges. Blue direction arrow scales with field strength.
-
-### Test Particles
-
-- Up to 3 simultaneous particles (colors: green, magenta, amber)
-- Drag to position, release → accelerates from rest under F = qE
-- Re-grab a moving particle → freezes; release → resumes from rest
-- Controls: q (nC), m (μg, log slider), simulation speed (log slider)
-- **V** key → toggle Force (orange) and Velocity (green) vectors
-- Capture: particle absorbed when segment-to-charge distance < 3 cm; trail ends inside the charge
-- Exit: particle leaves canvas bounds → removed after trail fades
-
-### Energy Analysis Panel
-
-Click **📊 Energy Analysis** to open a bottom drawer with two live charts:
-- **Kinetic Energy K(t)** — ½mv² in joules
-- **Field Magnitude |E|(t)** — field strength at the particle's position in N/C
-
-Data is recorded continuously in the background (circular buffer, last 10 s of real time), so the graph populates immediately when opened.
-
-**Scrubbing:** Press `Space` to pause, then hover over either chart. A crosshair appears on the canvas at the exact position the particle occupied at that moment in time.
-
-### Presets
-
-| Preset | Configuration |
-|--------|---------------|
-| Dipole | +5 μC at (45,40) cm, −5 μC at (75,40) cm |
-| Quadrupole | ±3 μC at four corners, alternating signs |
-| Line | 10× +2 μC equally spaced across canvas |
-
-Presets replace all existing charges and particles.
-
-### Keyboard Shortcuts
-
-| Key | Action |
-|-----|--------|
-| `Delete` / `Backspace` | Delete selected charge or particle |
-| `C` | Clear all |
-| `1` / `2` / `3` | Load Dipole / Quadrupole / Line preset |
-| `Space` | Pause / resume |
-| `+` / `−` | Adjust selected charge ±0.5 μC |
-| `S` | Flip sign |
-| `R` | Reset all particles to drop position |
-| `V` | Toggle F⃗ / v⃗ vectors |
-| `F` | Toggle fullscreen |
-| `?` | Toggle help overlay |
-
-### Fullscreen
-
-Press `F` or click the expand icon (top-right corner of canvas). The canvas scales to fill the screen while maintaining its 3:2 aspect ratio. The control panel is hidden in fullscreen; all keyboard shortcuts remain active.
-
-### Help Overlay
-
-Press `?` or click the **?** button (top-left corner of canvas) for an in-canvas usage guide covering all features and shortcuts.
+| Preset | Charges | Demonstrates |
+|--------|---------|--------------|
+| **Dipole** | +5 μC at (45,40) cm, −5 μC at (75,40) cm | Equal and opposite — classic dipole field |
+| **Quadrupole** | ±3 μC at four corners, alternating | Four-pole field pattern |
+| **Line** | 10× +2 μC equally spaced | Uniform line charge approximation |
 
 ---
 
-## Quick Start
+## 🎓 Lecture Use
 
-1. Open the live URL in a browser
-2. Click **+ Positive** to add a charge — field appears immediately
-3. Drag the charge to explore the field pattern
-4. Hover the canvas to read exact SI values at any point
-5. Click **Add Test Particle**, drag it into the field, release
-6. Press **V** to show force and velocity vectors
-7. Open **📊 Energy Analysis**, then press **Space** to pause and scrub
-8. Press **?** for the full usage guide
+Designed for projector display and live classroom demonstration:
 
----
-
-## Lecture Use
-
-- **Dark theme** — projector-optimized
-- **Exact SI values** — probe readout verifiable against board calculations
-- **F⃗ / v⃗ vectors** — demonstrates that force ≠ velocity direction
-- **Energy panel** — live K(t) and |E|(t) charts
-- **Scrubbing** — pause and inspect any moment in the trajectory
+- **Dark theme** — high contrast on any projector
+- **Exact SI values** — probe readout verifiable against board calculations in real time
 - **Presets** — instant switch between canonical configurations
-- **Fullscreen** — press `F`
-- **Step buttons** — precise slider control from the podium
+- **Force / Velocity vectors** — shows that force ≠ velocity direction (press `V`)
+- **Energy panel** — live K(t) and |E|(t) with scrubbing
+- **Step buttons** on all sliders — precise control from the podium
+- **Fullscreen** — press `F` for distraction-free display
 - **Help overlay** — press `?` for on-screen reference
 
 ---
 
-## Limitations
+## 🛠️ Running Locally
 
-- 2D only; point charges only
-- Up to 10 fixed charges, up to 3 test particles
-- Test particle does not alter the field (standard test-charge approximation)
-- Singularity clamp at r = 2 cm, capture radius at r = 3 cm
-- Energy panel tracks one particle at a time (the first moving particle)
-
-## Possible Extensions
-
-- Field lines (streamlines)
-- Equipotential contours
-- Electric potential V(x, y) heatmap overlay
-- Multi-particle energy comparison
-- Export PNG / SVG of configuration
-
----
-
-## Running Locally
-
-ES6 modules require HTTP (not `file://`):
+ES6 modules require HTTP — cannot be opened as a local `file://`:
 
 ```bash
+git clone https://github.com/ash1960/Electric-Field-Simulator.git
+cd Electric-Field-Simulator
 python -m http.server 8080
 # open http://localhost:8080
 ```
 
-## Deployment
+---
 
-```bash
-git remote add origin https://github.com/ash1960/Electric-Field-Simulator.git
-git push -u origin main
-# GitHub Settings → Pages → Source: main branch, / (root)
-```
+## ⚠️ Limitations
+
+- 2D simulation only; point charges only
+- Up to 10 fixed charges and 3 simultaneous test particles
+- Test particle does not alter the background field (standard test-charge approximation)
+- Energy panel tracks one particle at a time
 
 ---
 
-## License
+## 💡 Possible Extensions
+
+- Field lines (streamlines)
+- Equipotential contour overlay
+- Electric potential V(x, y) heatmap
+- Multi-particle energy comparison panel
+- Export configuration as PNG / SVG
+
+---
+
+## 📄 License
 
 Free for educational use.
