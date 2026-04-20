@@ -38,15 +38,16 @@ export const Q_STEP_UC = 0.5;
 export const MAX_PARTICLES = 3;
 export const Q_PARTICLE_MIN_NC = 0.1;
 export const Q_PARTICLE_MAX_NC = 10;
-export const Q_PARTICLE_DEFAULT_NC = 1;
+export const Q_PARTICLE_DEFAULT_NC = 5;
 export const MASS_MIN_UG = 0.1;
 export const MASS_MAX_UG = 100;
-export const MASS_DEFAULT_UG = 10;
+export const MASS_DEFAULT_UG = 1;
 export const TIME_SCALE_MIN = 1e-6;
 export const TIME_SCALE_MAX = 1e-2;
 export const TIME_SCALE_DEFAULT = 1e-4;
 export const SUB_STEPS = 50;
-export const MAX_TRAIL_SECONDS = 10;
+export const MAX_TRAIL_SECONDS = 10;           // kept for backwards-compat (unused by trimmer)
+export const MAX_TRAIL_SECONDS_REAL = 10;      // trail retention in WALL-CLOCK seconds
 
 // Grid
 export const DEFAULT_GRID_SPACING = 25;

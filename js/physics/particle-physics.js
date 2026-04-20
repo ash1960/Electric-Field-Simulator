@@ -2,12 +2,10 @@ import {
   NC_TO_C, PX_TO_M, R_CAPTURE_M,
 } from './constants.js';
 import {
-  SUB_STEPS, MAX_TRAIL_SECONDS, CANVAS_W, CANVAS_H,
+  SUB_STEPS, MAX_TRAIL_SECONDS_REAL, CANVAS_W, CANVAS_H,
 } from '../config.js';
 import { Vector2D } from './vector.js';
-import {
-  computePotentialEnergy, computeKineticEnergy,
-} from './energy.js';
+import { computeKineticEnergy } from './energy.js';
 
 const EXIT_MARGIN_PX = 50;
 const FRAME_DT_S = 1 / 60;
@@ -17,12 +15,15 @@ export class ParticlePhysics {
     this.engine = engine;
   }
 
+  // Fixed per-frame dt (1/60 s wall-clock). Sim-time advances by FRAME_DT_S * timeScale.
+  // Deterministic pacing — identical to pre-energy-panel behavior.
   step(particle, charges, timeScale, subSteps = SUB_STEPS) {
     if (particle.state !== 'moving') return;
 
-    const dt_frame = FRAME_DT_S * timeScale;
-    const dt_sub = dt_frame / subSteps;
-    const q_C = particle.magnitude_nc * particle.sign * NC_TO_C;
+    const dt_frame_sim = FRAME_DT_S * timeScale;
+    const dt_sub       = dt_frame_sim / subSteps;
+    const dt_sub_real  = FRAME_DT_S / subSteps;
+    const q_C  = particle.magnitude_nc * particle.sign * NC_TO_C;
     const m_kg = particle.mass_kg;
 
     for (let i = 0; i < subSteps; i++) {
@@ -67,7 +68,8 @@ export class ParticlePhysics {
       }
       if (captured) return;
 
-      particle.simTime += dt_sub;
+      particle.simTime  += dt_sub;
+      particle.realTime += dt_sub_real;
 
       // Energy sample every 3rd sub-step
       if (i % 3 === 0) this._recordTrail(particle, charges);
@@ -84,17 +86,17 @@ export class ParticlePhysics {
   }
 
   _recordTrail(particle, charges) {
-    const U = computePotentialEnergy(particle, charges);
-    const K = computeKineticEnergy(particle);
+    const K       = computeKineticEnergy(particle);
+    const field   = this.engine.computeFieldAt(particle.x_px, particle.y_px, charges);
     particle.trail.push({
-      t: particle.simTime,
-      x_px: particle.x_px,
-      y_px: particle.y_px,
-      U, K, E_total: U + K,
+      realT:   particle.realTime,
+      x_px:    particle.x_px,
+      y_px:    particle.y_px,
+      K,
+      E_field: field.magnitude,
     });
-    // Trim entries older than MAX_TRAIL_SECONDS (in sim-time)
-    const cutoff = particle.simTime - MAX_TRAIL_SECONDS;
-    while (particle.trail.length && particle.trail[0].t < cutoff) {
+    const cutoff = particle.realTime - MAX_TRAIL_SECONDS_REAL;
+    while (particle.trail.length && particle.trail[0].realT < cutoff) {
       particle.trail.shift();
     }
   }

@@ -1,4 +1,5 @@
 import { CanvasManager }    from './renderer/canvas-manager.js';
+import { EnergyPanel }      from './renderer/energy-panel.js';
 import { DragManager }      from './interaction/drag-manager.js';
 import { Probe }            from './interaction/probe.js';
 import { KeyboardManager }  from './interaction/keyboard.js';
@@ -10,6 +11,7 @@ import { ParticlePhysics }  from './physics/particle-physics.js';
 import {
   CANVAS_W, CANVAS_H, DEFAULT_GRID_SPACING, TIME_SCALE_DEFAULT,
   Q_MIN_UC, Q_MAX_UC, Q_STEP_UC, MAX_CHARGES,
+  Q_PARTICLE_DEFAULT_NC, MASS_DEFAULT_UG, UG_TO_KG,
 } from './config.js';
 
 // ── State ─────────────────────────────────────────────────────
@@ -24,7 +26,9 @@ const state = {
   showVectors: false,
   paused: false,
   timeScale: TIME_SCALE_DEFAULT,
+  showEnergyPanel: false,
   scrubTimestamp: null,
+  scrubXY: null,
   maxSpeed: 0,
 };
 
@@ -114,7 +118,7 @@ const uiCb = {
   },
   onParticleAdd() {
     if (pm.particles.length >= 3) return;
-    pm.add(CANVAS_W / 2, CANVAS_H / 2 - 120, 1, +1, 10);
+    pm.add(CANVAS_W / 2, CANVAS_H / 2 - 120, Q_PARTICLE_DEFAULT_NC, +1, MASS_DEFAULT_UG);
     ui.updateStatus(state.charges, pm.particles);
   },
   onParticleUpdate(id, changes) {
@@ -124,7 +128,7 @@ const uiCb = {
                     : pm.particles[0]);
     if (!p) return;
     if (changes.magnitude_nc != null) p.magnitude_nc = changes.magnitude_nc;
-    if (changes.mass_ug      != null) p.mass_kg = changes.mass_ug * 1e-9;
+    if (changes.mass_ug      != null) p.mass_kg = changes.mass_ug * UG_TO_KG;
     if (changes.flipSign)             p.sign = -p.sign;
     ui.showParticleProperties(p);
   },
@@ -151,9 +155,15 @@ const uiCb = {
   },
   onToggleVectors(show) { state.showVectors = show; },
   onToggleEnergyPanel(show) {
-    document.getElementById('energy-drawer').classList.toggle('open', show);
+    state.showEnergyPanel = show;
+    energyPanel.setVisible(show);
   },
-  onTogglePause() { state.paused = !state.paused; ui.setPauseState(state.paused); },
+  onTogglePause() {
+    state.paused = !state.paused;
+    energyPanel.setPaused(state.paused);
+    if (!state.paused) { state.scrubTimestamp = null; state.scrubXY = null; }
+    ui.setPauseState(state.paused);
+  },
   onTimeScaleChange(v) { state.timeScale = v; },
 };
 
@@ -170,6 +180,7 @@ function onDragStart(id, type) {
       p.vy_ms = 0;
       p.trail = [];
       p.simTime = 0;
+      p.realTime = 0;
     }
   }
 }
@@ -245,6 +256,10 @@ const help = new HelpOverlay();
 const ui   = new UIControls(uiCb);
 const drag = new DragManager(canvas, () => state.charges, () => pm.particles, onDragStart, onDragEnd, onDragMove);
 const kb   = new KeyboardManager(kbCb);
+const energyPanel = new EnergyPanel(
+  document.getElementById('energy-drawer'),
+  (ts) => { state.scrubTimestamp = ts; },
+);
 
 drag.bind();
 kb.bind();
@@ -270,13 +285,19 @@ function loop() {
     }
   }
   probe.refresh(state.charges, drag.isDraggingCharge);
+
+  if (state.showEnergyPanel) energyPanel.update(pm.particles);
+  state.scrubXY = state.scrubTimestamp != null
+    ? energyPanel.getScrubPosition(state.scrubTimestamp, pm.particles)
+    : null;
+
   cm.render(
     state.charges, state.gridResult,
     drag.isDraggingCharge ? null : probe.result,
     pm.particles,
     state.selectedId, state.selectedType,
     state.gridSpacing, state.showVectors, state.scrubTimestamp,
-    state.maxSpeed,
+    state.maxSpeed, state.scrubXY,
   );
   requestAnimationFrame(loop);
 }

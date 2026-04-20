@@ -29,16 +29,34 @@ body {
   position: fixed;
   bottom: 0;
   left: 0;
-  right: 0;
+  right: 280px;
   height: 0;
+  padding: 0 20px;
   overflow: hidden;
   background: #161b22;
   border-top: 1px solid #30363d;
-  transition: height 0.3s ease;
+  transition: height 0.3s ease, padding 0.3s ease;
 }
 
 #energy-drawer.open {
   height: 220px;
+  padding: 12px 20px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+#pause-indicator {
+  position: fixed;
+  top: 8px;
+  left: 64px;
+  background: #f0883e;
+  color: #0d1117;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font: bold 12px 'Courier New', monospace;
+  letter-spacing: 0.08em;
+  z-index: 50;
 }
 
 button {

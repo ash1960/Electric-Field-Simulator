@@ -17,7 +17,7 @@ export function drawTrail(ctx, particle, scrubTimestamp) {
     const a = trail[i - 1];
     const b = trail[i];
     let alpha = 0.1 + 0.7 * (i / n);
-    if (scrubTimestamp != null && b.t > scrubTimestamp) alpha *= 0.2;
+    if (scrubTimestamp != null && b.realT > scrubTimestamp) alpha *= 0.2;
     ctx.strokeStyle = _withAlpha(particle.color, alpha);
     ctx.beginPath();
     ctx.moveTo(a.x_px, a.y_px);

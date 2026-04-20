@@ -16,6 +16,7 @@ export class ParticleManager {
       color: PARTICLE_COLORS[this.#colorIdx++ % PARTICLE_COLORS.length],
       trail: [],
       simTime: 0,
+      realTime: 0,
     };
     this.#particles.push(p);
     return p;
@@ -34,6 +35,7 @@ export class ParticleManager {
       p.state = 'held';
       p.trail = [];
       p.simTime = 0;
+      p.realTime = 0;
     }
   }
 

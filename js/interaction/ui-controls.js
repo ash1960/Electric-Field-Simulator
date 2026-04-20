@@ -1,7 +1,7 @@
 import {
   Q_MIN_UC, Q_MAX_UC, Q_STEP_UC,
-  Q_PARTICLE_MIN_NC, Q_PARTICLE_MAX_NC,
-  MASS_MIN_UG, MASS_MAX_UG,
+  Q_PARTICLE_MIN_NC, Q_PARTICLE_MAX_NC, Q_PARTICLE_DEFAULT_NC,
+  MASS_MIN_UG, MASS_MAX_UG, MASS_DEFAULT_UG,
   TIME_SCALE_MIN, TIME_SCALE_MAX, TIME_SCALE_DEFAULT,
   GRID_SPACING_MIN, GRID_SPACING_MAX, DEFAULT_GRID_SPACING,
   MAX_CHARGES, MAX_PARTICLES,
@@ -78,7 +78,19 @@ export class UIControls {
     }
   }
 
-  setPauseState(_paused) { /* future: update pause button label */ }
+  setPauseState(paused) {
+    let tag = document.getElementById('pause-indicator');
+    if (paused) {
+      if (!tag) {
+        tag = document.createElement('div');
+        tag.id = 'pause-indicator';
+        tag.textContent = '⏸ PAUSED';
+        document.body.append(tag);
+      }
+    } else if (tag) {
+      tag.remove();
+    }
+  }
 
   // ── Sections ─────────────────────────────────────────────────
 
@@ -124,9 +136,9 @@ export class UIControls {
     addB.style.width = '100%';
     sec.append(addB);
 
-    sec.append(this._slider('q', Q_PARTICLE_MIN_NC, Q_PARTICLE_MAX_NC, 0.1, 1, 'nC',
+    sec.append(this._slider('q', Q_PARTICLE_MIN_NC, Q_PARTICLE_MAX_NC, 0.1, Q_PARTICLE_DEFAULT_NC, 'nC',
       (v) => this.#cb.onParticleUpdate?.(null, { magnitude_nc: v })).row);
-    sec.append(this._logSlider('m', MASS_MIN_UG, MASS_MAX_UG, 10, 'μg',
+    sec.append(this._logSlider('m', MASS_MIN_UG, MASS_MAX_UG, MASS_DEFAULT_UG, 'μg',
       (v) => this.#cb.onParticleUpdate?.(null, { mass_ug: v })).row);
     sec.append(this._logSlider('⏩', TIME_SCALE_MIN, TIME_SCALE_MAX, TIME_SCALE_DEFAULT, 's/f',
       (v) => this.#cb.onTimeScaleChange?.(v)).row);

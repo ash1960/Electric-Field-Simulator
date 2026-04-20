@@ -15,7 +15,7 @@ export class CanvasManager {
   }
 
   render(charges, gridResult, probeResult, particles, selectedId, selectedType,
-         gridSpacing, showVectors, scrubTimestamp, maxSpeed = 1) {
+         gridSpacing, showVectors, scrubTimestamp, maxSpeed = 1, scrubXY = null) {
     const { ctx, canvas } = this;
 
     // 1. Clear + background
@@ -64,9 +64,7 @@ export class CanvasManager {
     }
 
     // 9. Scrub crosshair — Phase 5
-    if (scrubTimestamp != null) {
-      // Position lookup deferred to Phase 5
-    }
+    if (scrubXY) this.drawScrubCrosshair(scrubXY.x_px, scrubXY.y_px);
 
     // 10. Fullscreen button
     this._drawFullscreenButton();
