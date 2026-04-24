@@ -139,30 +139,31 @@ export class CanvasManager {
   }
 
   _drawProbe({ x_px, y_px, ex, ey, magnitude, angle_deg, pos_cm }, maxMag) {
-    if (!magnitude) return;
     const { ctx, canvas } = this;
-    const angle = Math.atan2(ey, ex);
 
-    // Direction + magnitude arrow at cursor (log-scaled, wider range for clear visual feedback).
-    const MIN_AL = 20, MAX_AL = 120;
-    const t = maxMag > 0 ? Math.log10(1 + (magnitude / maxMag) * 999) / 3 : 0.5;
-    const AL = MIN_AL + (MAX_AL - MIN_AL) * Math.max(0, Math.min(1, t));
-    const HL = Math.max(7, AL * 0.28);
-    const HA = 0.45;
-    const tx = x_px + Math.cos(angle) * AL;
-    const ty = y_px + Math.sin(angle) * AL;
-    ctx.save();
-    ctx.strokeStyle = '#58a6ff'; ctx.fillStyle = '#58a6ff';
-    ctx.lineWidth = 2; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(x_px, y_px); ctx.lineTo(tx, ty); ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(tx, ty);
-    ctx.lineTo(tx - HL * Math.cos(angle - HA), ty - HL * Math.sin(angle - HA));
-    ctx.lineTo(tx - HL * Math.cos(angle + HA), ty - HL * Math.sin(angle + HA));
-    ctx.closePath(); ctx.fill();
-    ctx.restore();
+    // Direction arrow — only when field is non-zero (no direction defined at a cancellation point).
+    if (magnitude > 0) {
+      const angle = Math.atan2(ey, ex);
+      const MIN_AL = 20, MAX_AL = 120;
+      const t = maxMag > 0 ? Math.log10(1 + (magnitude / maxMag) * 999) / 3 : 0.5;
+      const AL = MIN_AL + (MAX_AL - MIN_AL) * Math.max(0, Math.min(1, t));
+      const HL = Math.max(7, AL * 0.28);
+      const HA = 0.45;
+      const tx = x_px + Math.cos(angle) * AL;
+      const ty = y_px + Math.sin(angle) * AL;
+      ctx.save();
+      ctx.strokeStyle = '#58a6ff'; ctx.fillStyle = '#58a6ff';
+      ctx.lineWidth = 2; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(x_px, y_px); ctx.lineTo(tx, ty); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(tx - HL * Math.cos(angle - HA), ty - HL * Math.sin(angle - HA));
+      ctx.lineTo(tx - HL * Math.cos(angle + HA), ty - HL * Math.sin(angle + HA));
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
 
-    // Tooltip box
+    // Tooltip box — always shown when probe is active
     const BW = 220, BH = 116, PAD = 11, LH = 19;
     let bx = x_px + 18, by = y_px + 10;
     if (bx + BW > canvas.width  - 4) bx = x_px - BW - 18;

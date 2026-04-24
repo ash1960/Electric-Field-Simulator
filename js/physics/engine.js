@@ -39,7 +39,6 @@ export class FieldEngine {
     }
 
     let magnitude = Math.hypot(ex, ey);
-    // Clamp float-noise residuals at symmetry cancellation points to true zero.
     if (magnitude < 1e-4) { ex = 0; ey = 0; magnitude = 0; }
     const angle_deg = magnitude === 0 ? 0 : Math.atan2(ey, ex) * 180 / Math.PI;
 
