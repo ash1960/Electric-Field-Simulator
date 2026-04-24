@@ -200,6 +200,7 @@ export class CanvasManager {
   _sci(v) {
     const S = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
     if (!isFinite(v) || v === 0) return '0';
+    if (Math.abs(v) < 1e-3) return '0';
     const sign = v < 0 ? '−' : '';
     const abs  = Math.abs(v);
     const exp  = Math.floor(Math.log10(abs));
