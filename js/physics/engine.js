@@ -38,8 +38,9 @@ export class FieldEngine {
       ey += ry * inv * E_scalar;
     }
 
-    const magnitude = Math.hypot(ex, ey);
-    const angle_deg = Math.atan2(ey, ex) * 180 / Math.PI;
+    let magnitude = Math.hypot(ex, ey);
+    if (magnitude < 1e-4) { ex = 0; ey = 0; magnitude = 0; }
+    const angle_deg = magnitude === 0 ? 0 : Math.atan2(ey, ex) * 180 / Math.PI;
 
     return {
       ex,

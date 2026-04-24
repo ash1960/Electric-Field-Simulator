@@ -4,6 +4,7 @@ import { CHARGE_RADIUS_PX } from '../config.js';
 const SKIP_MARGIN = 4; // extra px beyond charge radius where arrows are suppressed
 
 export function drawArrow(ctx, x_px, y_px, ex, ey, magnitude, maxMag, gridSpacing) {
+  if (magnitude === 0) return;
   const MAX_ARROW = gridSpacing * 1.4;
   const MIN_ARROW = gridSpacing * 0.4;
   const t = Math.log10(1 + (magnitude / maxMag) * 99) / 2;
