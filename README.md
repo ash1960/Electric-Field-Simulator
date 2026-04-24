@@ -1,6 +1,7 @@
 <div align="center">
 
 # ⚡ Electric Field Simulator
+<img width="1919" height="926" alt="image" src="https://github.com/user-attachments/assets/0197b14f-4f7a-460b-9dc7-e0e2a4ab6cce" />
 
 **Interactive electrostatics tool for university-level Physics II**
 
