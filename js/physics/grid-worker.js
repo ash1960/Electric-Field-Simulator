@@ -5,6 +5,7 @@ const K_COULOMB = 9e9;
 const R_MIN_M = 0.02;
 const UC_TO_C = 1e-6;
 const PX_TO_M = 1e-3;
+const SKIP_PX = 24; // mirrors CHARGE_RADIUS_PX (20) + SKIP_MARGIN (4) in arrow-renderer
 
 function fieldAt(x_px, y_px, charges) {
   const px_m = x_px * PX_TO_M;
@@ -40,8 +41,16 @@ self.onmessage = (event) => {
       const x_px = spacingPx / 2 + i * spacingPx;
       const { ex, ey, magnitude } = fieldAt(x_px, y_px, charges);
       grid[k++] = { x_px, y_px, ex, ey, magnitude };
-      if (magnitude > maxMag) maxMag = magnitude;
-      if (magnitude < minMag) minMag = magnitude;
+      let renderable = true;
+      for (let ci = 0; ci < charges.length; ci++) {
+        const dx = x_px - charges[ci].x_px;
+        const dy = y_px - charges[ci].y_px;
+        if (dx * dx + dy * dy < SKIP_PX * SKIP_PX) { renderable = false; break; }
+      }
+      if (renderable) {
+        if (magnitude > maxMag) maxMag = magnitude;
+        if (magnitude < minMag) minMag = magnitude;
+      }
     }
   }
   if (!isFinite(minMag)) minMag = 0;
